@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>診断テスト</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="font-family:sans-serif; padding:20px; font-size:18px;">
+
+<h2>読み込み診断</h2>
+<div id="log" style="white-space:pre-wrap; background:#f0f0f0; padding:15px; border-radius:8px;"></div>
+
+<script>
+const logBox = document.getElementById('log');
+function log(msg){
+  logBox.innerText += msg + '\n';
+}
+
+log('① この行が見えていれば、bodyの中のscriptタグ自体は実行されています');
+
+log('② google (Charts)読み込み状態: ' + (typeof google !== 'undefined' ? 'OK 読み込み成功' : 'NG 読み込み失敗/未定義'));
+
+log('③ window.supabase読み込み状態: ' + (typeof window.supabase !== 'undefined' ? 'OK 読み込み成功' : 'NG 読み込み失敗/未定義'));
+
+try {
+  const client = window.supabase.createClient('https://ruxdciqhklpxljbwqlwu.supabase.co', 'test');
+  log('④ createClient呼び出し: OK 成功');
+} catch(e) {
+  log('④ createClient呼び出し: NG エラー発生 → ' + e.message);
+}
+
+log('⑤ ここまで到達 = スクリプトは最後まで実行されました');
+</script>
+
+</body>
+</html>
