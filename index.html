@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>勤怠管理</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
@@ -34,7 +34,8 @@
 }
 
 * { -webkit-tap-highlight-color:transparent; }
-body { font-family:var(--font-system); background:var(--color-bg); margin:0; padding:0 0 calc(118px + env(safe-area-inset-bottom)) 0; color:var(--text-primary); -webkit-font-smoothing:antialiased; }
+html { touch-action:pan-x pan-y; } /* ピンチズーム・ダブルタップズームを抑止(拡大禁止・サイズ固定) */
+body { font-family:var(--font-system); background:var(--color-bg); margin:0; padding:0 0 calc(118px + env(safe-area-inset-bottom)) 0; color:var(--text-primary); -webkit-font-smoothing:antialiased; touch-action:pan-x pan-y; }
 
 /* ===== ヘッダー(iOSナビゲーションバー風。半透明+blurで固定) ===== */
 .header-top {
@@ -65,13 +66,13 @@ body { font-family:var(--font-system); background:var(--color-bg); margin:0; pad
 .header-bottom.flash { animation: flashPulse 0.6s ease-out; }
 
 /* ステータスバッジ */
-.status-badge { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; background:rgba(255,255,255,0.16); padding:5px 12px; border-radius:20px; margin-top:8px; transition:background 0.3s ease; }
+.status-badge { display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:600; background:rgba(255,255,255,0.16); padding:5px 12px; border-radius:20px; margin-top:8px; transition:background 0.3s ease; }
 .status-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.6); }
 .status-badge.working .status-dot { background:var(--color-success); animation: dotPulse 1.4s infinite; }
 .status-badge.break .status-dot { background:#FFD60A; animation: dotPulse 1.4s infinite; }
 .status-badge.out .status-dot { background:#FFFFFF; animation: dotPulse 1.4s infinite; }
 .status-badge.done .status-dot { background:rgba(255,255,255,0.6); }
-.elapsed-time { display:none; align-items:center; margin-top:8px; margin-left:8px; font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; background:rgba(255,255,255,0.16); padding:5px 12px; border-radius:20px; letter-spacing:0.02em; }
+.elapsed-time { display:none; align-items:center; margin-top:8px; margin-left:8px; font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; background:rgba(255,255,255,0.16); padding:5px 12px; border-radius:20px; letter-spacing:0.02em; }
 @keyframes dotPulse {
   0% { box-shadow:0 0 0 0 rgba(255,255,255,0.5); }
   70% { box-shadow:0 0 0 6px rgba(255,255,255,0); }
@@ -119,8 +120,8 @@ body { font-family:var(--font-system); background:var(--color-bg); margin:0; pad
 .header-clock span.sec .sec-face.is-current { opacity:1; transform:translateY(0); }
 .header-clock span.sec .sec-face.is-leaving { opacity:0; transform:translateY(-6px); }
 .header-date { font-size:15px; font-weight:500; margin-top:4px; margin-bottom:2px; opacity:0.92; }
-.header-last { font-size:13px; margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; opacity:0.95; }
-.header-last button { background:rgba(255,255,255,0.18); color:white; border:none; border-radius:8px; padding:5px 10px; cursor:pointer; font-size:12px; font-weight:600; transition:transform 0.15s var(--spring), background 0.15s ease; }
+.header-last { font-size:14px; margin-top:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; opacity:0.95; }
+.header-last button { background:rgba(255,255,255,0.18); color:white; border:none; border-radius:8px; padding:5px 10px; cursor:pointer; font-size:13px; font-weight:600; transition:transform 0.15s var(--spring), background 0.15s ease; }
 .header-last button:active { transform:scale(0.94); background:rgba(255,255,255,0.28); }
 
 /* ===== 打刻ボタン(状態依存の単一プライマリボタン+サブボタン) ===== */
@@ -170,34 +171,44 @@ button.action-btn:active { transform:scale(0.95); box-shadow:0 1px 1px rgba(16,1
 
 /* セクション見出し(iOSの「eyebrow」風。カードの外側に配置) */
 .section { margin:0 16px 20px 16px; }
-.section-label { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-secondary); padding:0 4px 7px 4px; display:flex; align-items:baseline; gap:8px; }
-.section-label .section-label-note { text-transform:none; font-weight:400; letter-spacing:0; font-size:12.5px; color:var(--text-tertiary); }
+.section-label { font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-secondary); padding:0 4px 7px 4px; display:flex; align-items:baseline; gap:8px; }
+.section-label .section-label-note { text-transform:none; font-weight:400; letter-spacing:0; font-size:13.5px; color:var(--text-tertiary); }
 .section-label .section-label-action { margin-left:auto; text-transform:none; font-weight:500; letter-spacing:0; color:var(--color-accent); cursor:pointer; }
 
 /* 汎用カード(グリッド型の情報を収める白背景シート) */
 .ios-card { background:var(--color-elevated); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-card); }
 .summary-card { background:var(--color-elevated); border-radius:var(--radius-lg); padding:16px; display:flex; flex-direction:column; gap:10px; box-shadow:var(--shadow-card); }
-.summary-title { font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-secondary); margin-bottom:2px; display:flex; justify-content:space-between; align-items:center; }
+.summary-title { font-weight:600; font-size:14px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-secondary); margin-bottom:2px; display:flex; justify-content:space-between; align-items:center; }
 .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:10px; }
-.summary-field { background:var(--color-bg); border-radius:var(--radius-sm); padding:10px; text-align:center; font-size:14px; font-weight:500; color:var(--text-primary); font-variant-numeric:tabular-nums; }
+.summary-field { background:var(--color-bg); border-radius:var(--radius-sm); padding:10px; text-align:center; font-size:15px; font-weight:500; color:var(--text-primary); font-variant-numeric:tabular-nums; }
+
+/* ===== 有給休暇サマリーカード: タップで内訳(付与/繰越/消化)を展開する ===== */
+.paid-leave-summary-card { cursor:pointer; }
+.paid-leave-summary-row { display:flex; align-items:center; gap:8px; }
+.paid-leave-summary-row .summary-field { text-align:left; padding-left:14px; }
+.paid-leave-chevron { color:var(--text-tertiary); flex-shrink:0; transition:transform 0.28s var(--spring); }
+.paid-leave-summary-card.open .paid-leave-chevron { transform:rotate(180deg); }
+.paid-leave-detail { max-height:0; opacity:0; overflow:hidden; transition:max-height 0.3s ease, opacity 0.22s ease, margin-top 0.3s ease; }
+.paid-leave-detail .summary-grid { margin-top:10px; }
+.paid-leave-summary-card.open .paid-leave-detail { max-height:200px; opacity:1; }
 
 /* ===== 履歴・編集リスト(1枚の白シート内をセパレータのみで区切るiOSテーブル風) ===== */
 .ios-list { background:var(--color-elevated); border-radius:var(--radius-lg); padding:2px 16px; box-shadow:var(--shadow-card); }
-.history-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:0.5px solid var(--separator); font-size:15px; gap:8px; }
+.history-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:0.5px solid var(--separator); font-size:16px; gap:8px; }
 .history-row:last-child { border-bottom:none; }
 .history-info { display:flex; flex-direction:column; gap:2px; }
 .history-type { font-weight:600; color:var(--text-primary); }
-.history-time { color:var(--text-secondary); font-size:13px; font-variant-numeric:tabular-nums; }
-.history-edited-tag { color:var(--color-warning); font-size:11px; font-weight:600; margin-left:6px; display:inline-flex; align-items:center; gap:2px; }
+.history-time { color:var(--text-secondary); font-size:14px; font-variant-numeric:tabular-nums; }
+.history-edited-tag { color:var(--color-warning); font-size:12px; font-weight:600; margin-left:6px; display:inline-flex; align-items:center; gap:2px; }
 .history-actions { display:flex; gap:6px; }
-.history-actions button { border:none; border-radius:8px; padding:10px 14px; min-height:44px; min-width:44px; font-size:12.5px; font-weight:600; cursor:pointer; transition:transform 0.15s var(--spring), opacity 0.15s ease; }
+.history-actions button { border:none; border-radius:8px; padding:10px 14px; min-height:44px; min-width:44px; font-size:13.5px; font-weight:600; cursor:pointer; transition:transform 0.15s var(--spring), opacity 0.15s ease; }
 .history-actions button:active { transform:scale(0.93); }
 .btn-edit-row { background:var(--color-accent-tint); color:var(--color-accent); }
 .btn-delete-row { background:var(--color-danger-tint); color:var(--color-danger); }
 
 /* ===== 勤務時間バー ===== */
 .timebar-card { background:var(--color-elevated); border-radius:var(--radius-lg); padding:16px; display:flex; flex-direction:column; gap:10px; box-shadow:var(--shadow-card); }
-.timebar-title { font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-secondary); }
+.timebar-title { font-weight:600; font-size:14px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-secondary); }
 .timebar-container { position:relative; height:22px; background:var(--color-bg); border-radius:11px; overflow:hidden; }
 .timebar-segment { position:absolute; top:0; height:100%; }
 
@@ -217,14 +228,14 @@ button.action-btn:active { transform:scale(0.95); box-shadow:0 1px 1px rgba(16,1
 .ring-chart-svg circle { transition:stroke-dasharray 0.6s cubic-bezier(0.22,1,0.36,1), stroke-dashoffset 0.6s cubic-bezier(0.22,1,0.36,1); }
 .ring-chart-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .ring-chart-center-value { font-size:22px; font-weight:700; color:var(--text-primary); font-variant-numeric:tabular-nums; }
-.ring-chart-center-label { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+.ring-chart-center-label { font-size:13px; color:var(--text-secondary); margin-top:2px; }
 .ring-chart-legend { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; width:100%; }
-.ring-chart-legend-item { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-primary); }
+.ring-chart-legend-item { display:flex; align-items:center; gap:6px; font-size:14px; color:var(--text-primary); }
 .ring-chart-legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .ring-chart-legend-value { color:var(--text-secondary); font-variant-numeric:tabular-nums; }
 
 /* 日またぎ勤務の注記・アラート(継続勤務/16時間超) */
-.overnight-notice { background:var(--color-warning-tint); color:#9A5B00; border-radius:var(--radius-sm); padding:12px 14px; font-size:13px; line-height:1.5; }
+.overnight-notice { background:var(--color-warning-tint); color:#9A5B00; border-radius:var(--radius-sm); padding:12px 14px; font-size:14px; line-height:1.5; }
 .overnight-notice.anomaly { background:var(--color-danger-tint); color:#C4281B; }
 
 /* ===== UI改善#5: カレンダーセルの日次達成率リング ===== */
@@ -240,7 +251,7 @@ button.action-btn:active { transform:scale(0.95); box-shadow:0 1px 1px rgba(16,1
 .calendar-cell.today.selected { box-shadow:0 0 0 2px var(--color-accent) inset, 0 0 0 2px var(--color-accent), 0 0 0 4px rgba(30,111,224,0.15); }
 
 /* 空データ時の表示 */
-.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:28px 12px; color:var(--text-tertiary); font-size:13.5px; text-align:center; }
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:28px 12px; color:var(--text-tertiary); font-size:14.5px; text-align:center; }
 .empty-state svg { opacity:0.55; }
 
 /* フォーカスリング(外部キーボード操作対応) */
@@ -271,7 +282,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 /* ===== 下部ステータスバー ===== */
-.footer-bar { position:fixed; bottom:0; left:0; width:100%; box-sizing:border-box; background:rgba(28,28,30,0.92); backdrop-filter:blur(12px); color:rgba(255,255,255,0.85); font-size:12.5px; font-weight:500; text-align:center; padding:9px 0 calc(9px + env(safe-area-inset-bottom)) 0; letter-spacing:0.01em; font-variant-numeric:tabular-nums; }
+.footer-bar { position:fixed; bottom:0; left:0; width:100%; box-sizing:border-box; background:rgba(28,28,30,0.92); backdrop-filter:blur(12px); color:rgba(255,255,255,0.85); font-size:13.5px; font-weight:500; text-align:center; padding:9px 0 calc(9px + env(safe-area-inset-bottom)) 0; letter-spacing:0.01em; font-variant-numeric:tabular-nums; }
 
 /* ===== 下部メニュー(タブ)バー。半透明+blur、アクティブ時はアイコンが塗りつぶしに切替 ===== */
 .tab-bar {
@@ -279,7 +290,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   background:rgba(255,255,255,0.78); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%);
   display:flex; border-top:0.5px solid var(--separator); z-index:500;
 }
-.tab-btn { flex:1; border:none; background:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:10.5px; font-weight:500; color:var(--text-tertiary); cursor:pointer; position:relative; transition:color 0.2s ease; padding:6px 0 4px 0; min-height:44px; }
+.tab-btn { flex:1; border:none; background:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:11.5px; font-weight:500; color:var(--text-tertiary); cursor:pointer; position:relative; transition:color 0.2s ease; padding:6px 0 4px 0; min-height:44px; }
 .tab-btn:active { opacity:0.6; }
 .tab-icon { width:26px; height:26px; display:flex; align-items:center; justify-content:center; position:relative; }
 .tab-icon svg { width:25px; height:25px; }
@@ -334,14 +345,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #undoSnackbar .undo-btn:active { opacity:0.5; transform:scale(0.94); }
 
 /* カスタムツールチップ */
-.tooltip { position:absolute; background: rgba(28,28,30,0.92); color:#fff; padding:5px 9px; border-radius:8px; font-size:12px; font-weight:500; pointer-events:none; opacity:0; transition:0.3s; z-index:1000; }
+.tooltip { position:absolute; background: rgba(28,28,30,0.92); color:#fff; padding:5px 9px; border-radius:8px; font-size:13px; font-weight:500; pointer-events:none; opacity:0; transition:0.3s; z-index:1000; }
 
 /* ===== 編集モーダル ===== */
 .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.32); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:2000; }
 .modal-overlay.open { display:flex; }
 .modal-box { background:var(--color-elevated); border-radius:var(--radius-lg); padding:22px; width:85%; max-width:360px; display:flex; flex-direction:column; gap:10px; box-shadow:0 24px 48px rgba(0,0,0,0.25); }
 .modal-title { font-size:17px; font-weight:700; letter-spacing:-0.01em; margin-bottom:4px; }
-.modal-box label { font-size:12.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; color:var(--text-secondary); margin-top:4px; }
+.modal-box label { font-size:13.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; color:var(--text-secondary); margin-top:4px; }
 .modal-box select, .modal-box input { padding:11px 12px; border-radius:var(--radius-sm); border:none; background:var(--fill-quaternary); font-size:15px; font-family:var(--font-system); color:var(--text-primary); }
 .modal-buttons { display:flex; gap:10px; margin-top:10px; }
 .modal-buttons button { flex:1; padding:13px; border-radius:var(--radius-sm); border:none; font-size:15px; font-weight:600; cursor:pointer; transition:transform 0.15s var(--spring); }
@@ -361,7 +372,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #pullIndicator { position:fixed; top:0; left:0; width:100%; text-align:center; font-size:13px; font-weight:600; color:var(--color-accent); padding:8px 0; background:rgba(242,242,247,0.95); backdrop-filter:blur(10px); z-index:1500; transform:translateY(-100%); transition:transform 0.2s ease; }
 #pullIndicator.visible { transform:translateY(0); }
 
-@media(max-width:600px){ .header-clock { font-size:36px; } .header-clock span.sec { font-size:18px; } button.action-btn { font-size:14px; padding:15px; } .summary-field { font-size:12px; } .header-company { font-size:19px; } .header-employee { font-size:13px; } .header-date { font-size:14px; } }
+@media(max-width:600px){ .header-clock { font-size:36px; } .header-clock span.sec { font-size:18px; } button.action-btn { font-size:14px; padding:15px; } .summary-field { font-size:13px; } .header-company { font-size:19px; } .header-employee { font-size:13px; } .header-date { font-size:14px; } }
 
 /* ==========================================
 UI Modernization Start
@@ -436,7 +447,7 @@ UI Modernization Start
 /* ----- ⑤ Footer: footer-barの高さを縮小 ----- */
 .footer-bar {
   padding: 5px 0 calc(5px + env(safe-area-inset-bottom)) 0 !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
 }
 body {
   padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important;
@@ -554,12 +565,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
   bottom: calc(22px + env(safe-area-inset-bottom));
 }
 .tab-icon, .tab-icon svg { width: 23px; height: 23px; }
-.tab-btn { font-size: 10px; padding: 4px 0 3px 0; }
+.tab-btn { font-size: 11px; padding: 4px 0 3px 0; }
 
 /* ----- Footer(勤務時間サマリー行): 最小限の高さに ----- */
 .footer-bar {
   padding: 4px 0 calc(4px + env(safe-area-inset-bottom)) 0 !important;
-  font-size: 10.5px !important;
+  font-size: 11.5px !important;
 }
 body {
   padding-bottom: calc(74px + env(safe-area-inset-bottom)) !important;
@@ -767,15 +778,20 @@ Sub Button Contrast & Footer Snap Fix End
     </div>
   </div>
 
-  <!-- ===== 有給休暇: 残数表示・申請一覧(既存の.section/.summary-card/.ios-listパターンを踏襲) ===== -->
+  <!-- ===== 有給休暇: 残数表示(タップで内訳を展開する1行サマリー) ===== -->
   <div class="section">
     <div class="section-label">有給休暇<span class="section-label-action" onclick="editPaidLeaveGrant()">変更</span></div>
-    <div class="summary-card">
-      <div class="summary-grid">
-        <div class="summary-field" id="paidLeaveRemainingField" style="grid-column:span 2;font-weight:700;">残日数：--日</div>
-        <div class="summary-field" id="paidLeaveGrantField">付与：--日</div>
-        <div class="summary-field" id="paidLeaveCarryoverField">繰越：--日</div>
-        <div class="summary-field" id="paidLeaveUsedField">消化：--日</div>
+    <div class="summary-card paid-leave-summary-card" id="paidLeaveSummaryCard" role="button" tabindex="0" aria-expanded="false" onclick="togglePaidLeaveDetail()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePaidLeaveDetail();}">
+      <div class="paid-leave-summary-row">
+        <div class="summary-field" id="paidLeaveRemainingField" style="flex:1;font-weight:700;">残日数：--日</div>
+        <svg class="paid-leave-chevron" id="paidLeaveChevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="paid-leave-detail" id="paidLeaveDetail">
+        <div class="summary-grid">
+          <div class="summary-field" id="paidLeaveGrantField">付与：--日</div>
+          <div class="summary-field" id="paidLeaveCarryoverField">繰越：--日</div>
+          <div class="summary-field" id="paidLeaveUsedField" style="grid-column:span 2;">消化：--日</div>
+        </div>
       </div>
     </div>
   </div>
@@ -825,7 +841,7 @@ Sub Button Contrast & Footer Snap Fix End
   <div class="section-label">カレンダー</div>
   <div class="ios-card" id="calendarSwipeArea">
     <div id="monthCalendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-size:12px;"></div>
-    <div style="display:flex;gap:12px;margin-top:14px;font-size:11.5px;color:var(--text-secondary);flex-wrap:wrap;">
+    <div style="display:flex;gap:12px;margin-top:14px;font-size:12.5px;color:var(--text-secondary);flex-wrap:wrap;">
       <span><span style="display:inline-block;width:9px;height:9px;background:var(--color-accent);border-radius:3px;"></span> 勤務あり</span>
       <span><span style="display:inline-block;width:9px;height:9px;background:var(--color-danger);border-radius:3px;"></span> 残業あり</span>
       <span><span style="display:inline-block;width:9px;height:9px;background:#E5E5EA;border-radius:3px;border:1px solid var(--separator);"></span> 出勤なし</span>
@@ -873,7 +889,7 @@ Sub Button Contrast & Footer Snap Fix End
 <!-- 編集モーダル -->
 <div class="modal-overlay" id="editModal">
   <div class="modal-box">
-    <div class="modal-title">打刻を編集</div>
+    <div class="modal-title" id="editModalTitle">打刻を編集</div>
     <label for="editType">種別</label>
     <select id="editType">
       <option value="勤務開始">勤務開始</option>
@@ -944,7 +960,8 @@ Sub Button Contrast & Footer Snap Fix End
     </div>
     <div id="daySheetOvernightNotice" class="overnight-notice" style="display:none;margin-bottom:14px;"></div>
     <div class="ios-list" id="daySheetHistory"></div>
-    <button class="btn-cancel" style="margin-top:16px;width:100%;min-height:44px;" onclick="closeDaySheet()" aria-label="この日の詳細を閉じる">閉じる</button>
+    <button class="btn-save" id="daySheetAddBtn" style="margin-top:14px;width:100%;min-height:44px;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:600;padding:13px;cursor:pointer;" onclick="openAddStampModal()" aria-label="この日に打刻を追加">＋ 打刻を追加</button>
+    <button class="btn-cancel" style="margin-top:10px;width:100%;min-height:44px;" onclick="closeDaySheet()" aria-label="この日の詳細を閉じる">閉じる</button>
   </div>
 </div>
 
@@ -1283,7 +1300,7 @@ async function renderAnnouncements(){
       <div class="history-info" style="flex:1;">
         <span class="history-type">${isUnread ? '<span style=\"color:#FF3B30;\">●</span> ' : ''}${a.title}</span>
         <span class="history-time">${a.date}</span>
-        <div class="announce-body" style="display:none;font-size:13px;color:#455A64;margin-top:6px;line-height:1.5;">${a.body}</div>
+        <div class="announce-body" style="display:none;font-size:14px;color:#455A64;margin-top:6px;line-height:1.5;">${a.body}</div>
       </div>
     `;
     row.addEventListener('click', async ()=>{
@@ -1698,6 +1715,14 @@ async function openDaySheet(y, m, day){
 
   document.getElementById('daySheetTitle').innerText = `${y}年${m+1}月${day}日`;
 
+  const addBtn = document.getElementById('daySheetAddBtn');
+  if(addBtn){
+    const locked = isStampLocked(new Date(y, m, day));
+    addBtn.disabled = locked;
+    addBtn.style.opacity = locked ? '0.4' : '1';
+    addBtn.style.cursor = locked ? 'not-allowed' : 'pointer';
+  }
+
   // 集計用(日またぎ対応。前後にバッファを付けて取得しシフト単位で計算する)
   const { shifts, error: shiftErr } = await fetchShiftsAround(startOfDay, endOfDay);
   let summary;
@@ -1805,9 +1830,13 @@ async function undoCancelLast(){
 }
 
 // ===== 編集モーダル =====
+let isAddMode = false; // true時はeditingIdを使わず新規打刻としてinsertする
+
 function openModal(stamp){
   if(isStampLocked(stamp.timestamp)){ showToast('システム移行前の打刻は編集できません'); return; } // 日付を問わない安全策
+  isAddMode = false;
   editingId = stamp.id;
+  document.getElementById('editModalTitle').innerText = '打刻を編集';
   document.getElementById('editType').value = stamp.type;
   const d = new Date(stamp.timestamp);
   const yyyy = d.getFullYear();
@@ -1820,12 +1849,31 @@ function openModal(stamp){
   document.getElementById('editMemo').value = stamp.memo || '';
   document.getElementById('editModal').classList.add('open');
 }
+
+// ===== 日別ボトムシートから、その日の打刻漏れなどを補うための新規打刻追加(7月分などの編集対応) =====
+function openAddStampModal(){
+  if(!currentDaySheetDate) return;
+  const { y, m, day } = currentDaySheetDate;
+  if(isStampLocked(new Date(y, m, day))){ showToast('システム移行前の日付には打刻を追加できません'); return; }
+  isAddMode = true;
+  editingId = null;
+  document.getElementById('editModalTitle').innerText = '打刻を追加';
+  document.getElementById('editType').value = '勤務開始';
+  const yyyy = y;
+  const mo = (m+1).toString().padStart(2,'0');
+  const dd = day.toString().padStart(2,'0');
+  document.getElementById('editDate').value = `${yyyy}-${mo}-${dd}`;
+  document.getElementById('editTime').value = '';
+  document.getElementById('editMemo').value = '';
+  document.getElementById('editModal').classList.add('open');
+}
+
 function closeModal(){
   editingId = null;
+  isAddMode = false;
   document.getElementById('editModal').classList.remove('open');
 }
 async function saveEdit(){
-  if(!editingId) return;
   const type = document.getElementById('editType').value;
   const dateStr = document.getElementById('editDate').value;
   const time = document.getElementById('editTime').value;
@@ -1833,16 +1881,26 @@ async function saveEdit(){
 
   if(!dateStr || !time){ showToast('日付と時刻を入力してください'); return; }
 
-  const { data: current, error: fetchErr } = await sb.from('stamps').select('timestamp').eq('id', editingId).single();
-  if(fetchErr || !current){ showToast('打刻データの取得に失敗しました'); return; }
-  if(isStampLocked(current.timestamp)){ showToast('システム移行前の打刻は編集できません'); closeModal(); return; } // 日付を問わない安全策(モーダルが開いた経路によらず再判定)
-
   // 日付・時刻をまとめて新しいタイムスタンプにする(日をまたぐ勤務の打刻ミス修正にも対応)
   const [yyyy, mo, dd] = dateStr.split('-').map(Number);
   const [h, m] = time.split(':').map(Number);
   const newDate = new Date(yyyy, mo-1, dd, h, m, 0, 0);
   if(isNaN(newDate.getTime())){ showToast('日付または時刻の形式が正しくありません'); return; }
   if(isStampLocked(newDate)){ showToast('システム移行前の日付には変更できません'); return; } // 変更先の日付も安全策の対象にする
+
+  if(isAddMode){
+    const { error } = await sb.from('stamps').insert({ type, memo, timestamp: newDate.toISOString() });
+    if(error){ showToast('追加エラー'); console.error(error); return; }
+    showToast('打刻を追加しました');
+    closeModal();
+    refreshAfterChange();
+    return;
+  }
+
+  if(!editingId) return;
+  const { data: current, error: fetchErr } = await sb.from('stamps').select('timestamp').eq('id', editingId).single();
+  if(fetchErr || !current){ showToast('打刻データの取得に失敗しました'); return; }
+  if(isStampLocked(current.timestamp)){ showToast('システム移行前の打刻は編集できません'); closeModal(); return; } // 日付を問わない安全策(モーダルが開いた経路によらず再判定)
 
   const { error } = await sb.from('stamps').update({
     type, memo, timestamp: newDate.toISOString(), edited: true
@@ -2415,6 +2473,14 @@ async function computePaidLeaveBalance(){
   return { grant, carryover, totalGrant, used, remaining, requests };
 }
 
+// ===== 有給休暇サマリーカードの開閉(タップで付与/繰越/消化の内訳を表示) =====
+function togglePaidLeaveDetail(){
+  const card = document.getElementById('paidLeaveSummaryCard');
+  if(!card) return;
+  const isOpen = card.classList.toggle('open');
+  card.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
 // ===== 月次サマリー画面の「有給休暇」カード =====
 async function renderPaidLeaveMonthlyCard(){
   const remainingField = document.getElementById('paidLeaveRemainingField');
@@ -2546,7 +2612,7 @@ async function renderLeaveRequestList(){
       <div class="history-info" style="flex:1;min-width:170px;">
         <span class="history-type">${dateLabel}(${typeLabel[r.halfType] || '全休'}・${r.days}日)</span>
         <span class="history-time" style="color:${statusColor[r.status] || 'inherit'};font-weight:600;">${statusLabel[r.status] || r.status}</span>
-        ${r.reason ? `<div style="font-size:12.5px;color:var(--text-tertiary);margin-top:2px;">${r.reason}</div>` : ''}
+        ${r.reason ? `<div style="font-size:13.5px;color:var(--text-tertiary);margin-top:2px;">${r.reason}</div>` : ''}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;"></div>
     `;
@@ -2555,19 +2621,19 @@ async function renderLeaveRequestList(){
     if(r.status === 'pending'){
       const approveBtn = document.createElement('button');
       approveBtn.className = 'action-btn-sub';
-      approveBtn.style.cssText = 'padding:8px 12px;font-size:12.5px;min-height:32px;flex:none;';
+      approveBtn.style.cssText = 'padding:8px 12px;font-size:13.5px;min-height:32px;flex:none;';
       approveBtn.innerText = '承認';
       approveBtn.onclick = () => setLeaveRequestStatus(r.id, 'approved');
 
       const rejectBtn = document.createElement('button');
       rejectBtn.className = 'action-btn-sub';
-      rejectBtn.style.cssText = 'padding:8px 12px;font-size:12.5px;min-height:32px;flex:none;color:var(--color-danger);';
+      rejectBtn.style.cssText = 'padding:8px 12px;font-size:13.5px;min-height:32px;flex:none;color:var(--color-danger);';
       rejectBtn.innerText = '却下';
       rejectBtn.onclick = () => setLeaveRequestStatus(r.id, 'rejected');
 
       const cancelBtn = document.createElement('button');
       cancelBtn.className = 'action-btn-sub';
-      cancelBtn.style.cssText = 'padding:8px 12px;font-size:12.5px;min-height:32px;flex:none;';
+      cancelBtn.style.cssText = 'padding:8px 12px;font-size:13.5px;min-height:32px;flex:none;';
       cancelBtn.innerText = '取消';
       cancelBtn.onclick = () => deleteLeaveRequest(r.id);
 
@@ -2577,7 +2643,7 @@ async function renderLeaveRequestList(){
     } else {
       const resetBtn = document.createElement('button');
       resetBtn.className = 'action-btn-sub';
-      resetBtn.style.cssText = 'padding:8px 12px;font-size:12.5px;min-height:32px;flex:none;';
+      resetBtn.style.cssText = 'padding:8px 12px;font-size:13.5px;min-height:32px;flex:none;';
       resetBtn.innerText = '申請中に戻す';
       resetBtn.onclick = () => setLeaveRequestStatus(r.id, 'pending');
       actionsWrap.appendChild(resetBtn);
@@ -2615,6 +2681,16 @@ async function renderLeaveRequestList(){
     history.replaceState(null, '', window.location.pathname); // 次回リロード時の誤打刻を防ぐ
   }
 })();
+
+// ===== 拡大操作を無効化(iOSはmeta viewportだけでは無視されることがあるためJSでも二重に防止) =====
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('gesturechange', (e) => e.preventDefault());
+let __lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - __lastTouchEnd <= 300) e.preventDefault(); // ダブルタップズーム防止
+  __lastTouchEnd = now;
+}, { passive:false });
 
 // ===== Service Worker登録(オフラインキャッシュを有効化する) =====
 if('serviceWorker' in navigator){
