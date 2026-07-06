@@ -190,7 +190,7 @@ button.action-btn:active { transform:scale(0.95); box-shadow:0 1px 1px rgba(16,1
 .paid-leave-summary-card.open .paid-leave-chevron { transform:rotate(180deg); }
 .paid-leave-detail { max-height:0; opacity:0; overflow:hidden; transition:max-height 0.3s ease, opacity 0.22s ease, margin-top 0.3s ease; }
 .paid-leave-detail .summary-grid { margin-top:10px; }
-.paid-leave-summary-card.open .paid-leave-detail { max-height:200px; opacity:1; }
+.paid-leave-summary-card.open .paid-leave-detail { max-height:240px; opacity:1; }
 
 /* ===== 有給申請一覧: 承認済み・却下分をまとめるアコーディオン(申請中のみ常時表示) ===== */
 .leave-history-toggle { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-top:8px; border-radius:var(--radius-sm); background:var(--fill-quaternary); cursor:pointer; font-size:13.5px; font-weight:600; color:var(--text-secondary); }
@@ -738,6 +738,8 @@ Sub Button Contrast & Footer Snap Fix End
 
   <!-- ===== 有給休暇: 日次ビュー簡易表示(情報密度を崩さないよう1フィールドのみ) ===== -->
   <div class="summary-card" id="dailyPaidLeaveCard" style="display:none;">
+    <!-- ===== 有給休暇: 今日が承認済み有給の範囲内の場合のみ表示する控えめな注記(アラート調にはしない) ===== -->
+    <div id="todayLeaveBadge" style="display:none;font-size:12.5px;font-weight:600;color:var(--color-accent);background:var(--fill-quaternary);border-radius:8px;padding:6px 10px;margin-bottom:8px;text-align:center;"></div>
     <div class="summary-grid">
       <div class="summary-field" id="dailyPaidLeaveField" style="grid-column:span 2;">有給残：--日</div>
     </div>
@@ -809,6 +811,7 @@ Sub Button Contrast & Footer Snap Fix End
           <div class="summary-field" id="paidLeaveGrantField">付与：--日</div>
           <div class="summary-field" id="paidLeaveCarryoverField">繰越：--日</div>
           <div class="summary-field" id="paidLeaveUsedField" style="grid-column:span 2;">消化：--日</div>
+          <div class="summary-field" id="paidLeaveMonthUsedField" style="grid-column:span 2;">今月消化：--日</div>
         </div>
       </div>
     </div>
@@ -2576,6 +2579,40 @@ async function renderPaidLeaveDailyCard(){
   card.style.display = '';
 }
 
+// ===== 追加機能: 当月(表示中の月)の有給消化日数を算出する =====
+// 既存のcomputePaidLeaveBalance()は「累計」の消化日数のみを扱うため、
+// 「表示中の月」に絞った消化日数はこちらで別途算出する(既存関数には手を加えない)。
+async function computeMonthlyPaidLeaveUsed(year, month){
+  const requests = await getLeaveRequests();
+  const approved = requests.filter(r => r.status === 'approved');
+  let used = 0;
+  approved.forEach(r => {
+    if(r.halfType !== 'full'){
+      // 半休は開始日=終了日の1日のみなので、その日が対象月かどうかだけ判定する
+      const d = new Date(r.startDate + 'T00:00:00');
+      if(!isNaN(d.getTime()) && d.getFullYear() === year && d.getMonth() === month) used += 0.5;
+      return;
+    }
+    const start = new Date(r.startDate + 'T00:00:00');
+    const end = new Date(r.endDate + 'T00:00:00');
+    if(isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return;
+    for(let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)){
+      const dow = d.getDay();
+      if(dow === 0 || dow === 6) continue; // 土日は除く(calcLeaveDaysと同じ扱い)
+      if(d.getFullYear() === year && d.getMonth() === month) used += 1;
+    }
+  });
+  return Math.round(used * 10) / 10;
+}
+
+// ===== 追加機能: 今日が承認済み有給の範囲内かどうかを判定する =====
+async function computeTodayLeaveStatus(){
+  const requests = await getLeaveRequests();
+  const todayStr = dateOnlyStr(new Date());
+  const approved = requests.filter(r => r.status === 'approved');
+  return approved.find(r => todayStr >= r.startDate && todayStr <= r.endDate) || null;
+}
+
 async function editPaidLeaveGrant(){
   const grant = parseFloat(await getSetting('paidLeaveGrantDays', '10')) || 0;
   const carryover = parseFloat(await getSetting('paidLeaveCarryoverDays', '0')) || 0;
@@ -2835,6 +2872,50 @@ if('serviceWorker' in navigator){
   if(dailyBtn) dailyBtn.addEventListener('click', renderPaidLeaveDailyCard);
   if(monthlyBtn) monthlyBtn.addEventListener('click', () => { renderPaidLeaveMonthlyCard(); renderLeaveRequestList(); });
   renderPaidLeaveDailyCard(); // 初期表示は「今日」タブがデフォルトのため
+})();
+
+// ===== 追加機能②: 月次サマリーに「当月消化」を追加表示する =====
+// 既存のrenderPaidLeaveMonthlyCard()本体は一切変更せず、呼び出し後に追加フィールドだけ描画するラップに留める。
+(function initPaidLeaveMonthlyUsedHook(){
+  const _origRenderPaidLeaveMonthlyCard = renderPaidLeaveMonthlyCard;
+  renderPaidLeaveMonthlyCard = async function(){
+    await _origRenderPaidLeaveMonthlyCard();
+    const field = document.getElementById('paidLeaveMonthUsedField');
+    if(!field) return;
+    const y = currentMonthDate.getFullYear();
+    const m = currentMonthDate.getMonth();
+    const monthUsed = await computeMonthlyPaidLeaveUsed(y, m);
+    field.innerText = `${m + 1}月消化：${monthUsed}日`;
+  };
+
+  // 前月/翌月ボタン(shiftMonth)・カレンダーのスワイプ操作でも当月消化を追従させる。
+  // shiftMonth自体の中身(既存ロジック)は変更せず、呼び出し後段に処理を足すだけのラップ。
+  const _origShiftMonth = shiftMonth;
+  shiftMonth = function(delta){
+    _origShiftMonth(delta);
+    renderPaidLeaveMonthlyCard();
+  };
+})();
+
+// ===== 追加機能③: 今日タブに「今日は有給です」の控えめな注記を表示する =====
+// 既存のrenderPaidLeaveDailyCard()本体は一切変更せず、呼び出し後に判定・表示だけ追加する。
+(function initTodayLeaveBadgeHook(){
+  const _origRenderPaidLeaveDailyCard = renderPaidLeaveDailyCard;
+  renderPaidLeaveDailyCard = async function(){
+    await _origRenderPaidLeaveDailyCard();
+    const badge = document.getElementById('todayLeaveBadge');
+    if(!badge) return;
+    const match = await computeTodayLeaveStatus();
+    if(match){
+      const label = match.halfType === 'full' ? '今日は有給です'
+        : (match.halfType === 'am' ? '今日は午前半休です' : '今日は午後半休です');
+      badge.innerText = label;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  };
+  renderPaidLeaveDailyCard(); // 初期表示にも反映(上のrenderPaidLeaveDailyCard()呼び出しの直後に実行される)
 })();
 
 </script>
