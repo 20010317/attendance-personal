@@ -250,6 +250,9 @@ button.action-btn:active { transform:scale(0.95); box-shadow:0 1px 1px rgba(16,1
 .day-ring { position:absolute; bottom:2px; right:2px; pointer-events:none; z-index:1; }
 .day-ring-track { stroke:var(--color-elevated); opacity:0.35; }
 .day-ring-progress { stroke:var(--color-elevated); }
+/* ===== 有給休暇: カレンダーセル上の控えめなドット(承認済み有給の日のみ表示。既存の色分けとは別レイヤー) ===== */
+.paid-leave-dot { position:absolute; top:3px; left:3px; width:6px; height:6px; border-radius:50%; background:#AF52DE; pointer-events:none; z-index:1; }
+.paid-leave-dot.half { background:transparent; border:1.5px solid #AF52DE; }
 
 /* カレンダーセルの選択状態(v1.1.0) */
 .calendar-cell { cursor:pointer; transition:transform 0.15s var(--spring), box-shadow 0.15s ease; }
@@ -1584,7 +1587,8 @@ async function loadMonthlySummary(){
   document.getElementById('monthAvgField').innerText = `平均勤務：${avgWork.toFixed(1)}h/日`;
   document.getElementById('monthAttendanceField').innerText = `出勤率：${attendanceRate.toFixed(0)}%`;
 
-  renderCalendar(y, m, dailySummaries, perDayTarget);
+  const paidLeaveDayMap = await getMonthlyApprovedLeaveDayMap(y, m);
+  renderCalendar(y, m, dailySummaries, perDayTarget, paidLeaveDayMap);
   drawMonthChart(daysInMonth, dailySummaries);
   hideSkeleton(['targetHoursField','actualHoursField','diffHoursField','monthCalendar','monthChart_div']);
 
@@ -1623,7 +1627,7 @@ function buildDayRing(workHours, perDayTarget){
     <circle class="day-ring-progress" cx="${ringCenter}" cy="${ringCenter}" r="${ringRadius}" fill="none" stroke-width="${ringStroke}" stroke-dasharray="${ringDash} ${ringGap}" transform="rotate(-90 ${ringCenter} ${ringCenter})"/>
   </svg>`;
 }
-function renderCalendar(y, m, dailySummaries, perDayTarget){
+function renderCalendar(y, m, dailySummaries, perDayTarget, paidLeaveDayMap){
   const container = document.getElementById('monthCalendar');
   container.innerHTML = '';
   const weekdayLabels = ['日','月','火','水','木','金','土'];
@@ -1662,7 +1666,10 @@ function renderCalendar(y, m, dailySummaries, perDayTarget){
     const anomalyDot = (!locked && s && s.hasAnomaly) ? `<span style="position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:${hasWork ? '#fff' : '#FF3B30'};box-shadow:0 0 0 1px ${hasWork ? '#FF3B30' : 'transparent'};" title="16時間超で異常打刻の可能性"></span>` : '';
     // UI改善#5: 勤務のある日のみ、右下に日次達成率リングを重ねる(移行前は非表示)
     const dayRing = (!locked && hasWork) ? buildDayRing(parseFloat(s.workHours)||0, perDayTarget) : '';
-    cell.innerHTML = `<span style="font-weight:700;">${day}</span>${hoursLabel}${anomalyDot}${dayRing}`;
+    // ===== 有給休暇: 承認済み有給の日にカレンダー上で控えめなドットを付ける(既存の色分けとは別レイヤー) =====
+    const leaveInfo = (!locked && paidLeaveDayMap) ? paidLeaveDayMap[day] : null;
+    const leaveDot = leaveInfo ? `<span class="paid-leave-dot${leaveInfo.halfType !== 'full' ? ' half' : ''}" title="${leaveInfo.halfType === 'am' ? '有給(午前)' : leaveInfo.halfType === 'pm' ? '有給(午後)' : '有給'}"></span>` : '';
+    cell.innerHTML = `<span style="font-weight:700;">${day}</span>${hoursLabel}${anomalyDot}${dayRing}${leaveDot}`;
     cell.dataset.day = day;
     if(isToday) cell.classList.add('today');
     if(locked){
@@ -2603,6 +2610,35 @@ async function computeMonthlyPaidLeaveUsed(year, month){
     }
   });
   return Math.round(used * 10) / 10;
+}
+
+// ===== 追加機能: 表示中の月について、日ごとの承認済み有給情報をマップ化する(カレンダーのドット表示用) =====
+// 戻り値: { day: { halfType: 'full'|'am'|'pm' } }  (dayは1〜month末の数値キー)
+async function getMonthlyApprovedLeaveDayMap(year, month){
+  const requests = await getLeaveRequests();
+  const approved = requests.filter(r => r.status === 'approved');
+  const map = {};
+  approved.forEach(r => {
+    if(r.halfType !== 'full'){
+      // 半休は開始日=終了日の1日のみ(computeMonthlyPaidLeaveUsedと同じ扱い)
+      const d = new Date(r.startDate + 'T00:00:00');
+      if(!isNaN(d.getTime()) && d.getFullYear() === year && d.getMonth() === month){
+        map[d.getDate()] = { halfType: r.halfType };
+      }
+      return;
+    }
+    const start = new Date(r.startDate + 'T00:00:00');
+    const end = new Date(r.endDate + 'T00:00:00');
+    if(isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return;
+    for(let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)){
+      const dow = d.getDay();
+      if(dow === 0 || dow === 6) continue; // 土日は除く(既存のcomputeMonthlyPaidLeaveUsedと同じ扱い)
+      if(d.getFullYear() === year && d.getMonth() === month){
+        map[d.getDate()] = { halfType: 'full' };
+      }
+    }
+  });
+  return map;
 }
 
 // ===== 追加機能: 今日が承認済み有給の範囲内かどうかを判定する =====
